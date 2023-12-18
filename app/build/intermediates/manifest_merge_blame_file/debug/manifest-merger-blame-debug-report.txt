@@ -1,0 +1,285 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<!--
+3 Copyright (c) 2010-2011, The MiCode Open Source Community (www.micode.net)
+4
+5     Licensed under the Apache License, Version 2.0 (the "License");
+6     you may not use this file except in compliance with the License.
+7     You may obtain a copy of the License at
+8
+9          http://www.apache.org/licenses/LICENSE-2.0
+10
+11     Unless required by applicable law or agreed to in writing, software
+12     distributed under the License is distributed on an "AS IS" BASIS,
+13     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+14     See the License for the specific language governing permissions and
+15     limitations under the License.
+16-->
+17<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+18    package="net.micode.notes"
+19    android:versionCode="1"
+20    android:versionName="0.1" >
+21
+22    <uses-sdk
+22-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:24:5-44
+23        android:minSdkVersion="14"
+23-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:24:15-41
+24        android:targetSdkVersion="14" />
+25
+26    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+26-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:26:5-81
+26-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:26:22-78
+27    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+27-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:27:5-88
+27-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:27:22-85
+28    <uses-permission android:name="android.permission.INTERNET" />
+28-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:28:5-67
+28-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:28:22-64
+29    <uses-permission android:name="android.permission.READ_CONTACTS" />
+29-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:29:5-72
+29-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:29:22-69
+30    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+30-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:30:5-74
+30-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:30:22-71
+31    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
+31-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:31:5-80
+31-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:31:22-77
+32    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+32-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:32:5-71
+32-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:32:22-68
+33    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+33-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:33:5-74
+33-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:33:22-71
+34    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+34-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:34:5-81
+34-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:34:22-78
+35
+36    <application
+36-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:36:5-155:19
+37        android:appComponentFactory="android.support.v4.app.CoreComponentFactory"
+37-->[com.android.support:support-compat:28.0.0] C:\Users\riven\.gradle\caches\transforms-3\fdedc24e9806d883675f1dcdcefa8b96\transformed\support-compat-28.0.0\AndroidManifest.xml:22:18-91
+38        android:debuggable="true"
+39        android:extractNativeLibs="true"
+40        android:icon="@drawable/icon_app"
+40-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:37:9-42
+41        android:label="@string/app_name"
+41-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:38:9-41
+42        android:testOnly="true" >
+43        <activity
+43-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:39:9-56:20
+44            android:name="net.micode.notes.ui.NotesListActivity"
+44-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:40:13-49
+45            android:configChanges="keyboardHidden|orientation|screenSize"
+45-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:41:13-74
+46            android:label="@string/app_name"
+46-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:42:13-45
+47            android:launchMode="singleTop"
+47-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:43:13-43
+48            android:theme="@style/NoteTheme"
+48-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:44:13-45
+49            android:uiOptions="splitActionBarWhenNarrow"
+49-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:45:13-57
+50            android:windowSoftInputMode="adjustPan" >
+50-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:46:13-52
+51            <intent-filter>
+51-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:48:13-52:29
+52                <action android:name="android.intent.action.MAIN" />
+52-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:49:17-69
+52-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:49:25-66
+53
+54                <category android:name="android.intent.category.LAUNCHER" />
+54-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:50:17-77
+54-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:50:27-74
+55
+56                <action android:name="android.intent.action.SEARCH" />
+56-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:51:17-71
+56-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:51:25-68
+57            </intent-filter>
+58
+59            <meta-data
+59-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:54:13-55:53
+60                android:name="android.app.searchable"
+60-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:54:24-61
+61                android:resource="@xml/searchable" />
+61-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:55:17-51
+62        </activity>
+63        <activity
+63-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:58:9-87:20
+64            android:name="net.micode.notes.ui.NoteEditActivity"
+64-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:59:13-48
+65            android:configChanges="keyboardHidden|orientation|screenSize"
+65-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:60:13-74
+66            android:launchMode="singleTop"
+66-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:61:13-43
+67            android:theme="@style/NoteTheme" >
+67-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:62:13-45
+68            <intent-filter android:scheme="http" >
+68-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:64:13-70:29
+68-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:64:28-49
+69                <action android:name="android.intent.action.VIEW" />
+69-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:66:17-69
+69-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:66:25-66
+70
+71                <category android:name="android.intent.category.DEFAULT" />
+71-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:17-76
+71-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:27-73
+72
+73                <data android:mimeType="vnd.android.cursor.item/text_note" />
+73-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:17-78
+73-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:23-75
+74                <data android:mimeType="vnd.android.cursor.item/call_note" />
+74-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:17-78
+74-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:23-75
+75            </intent-filter>
+76            <intent-filter>
+76-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:72:13-77:29
+77                <action android:name="android.intent.action.INSERT_OR_EDIT" />
+77-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:73:17-79
+77-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:73:25-76
+78
+79                <category android:name="android.intent.category.DEFAULT" />
+79-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:17-76
+79-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:27-73
+80
+81                <data android:mimeType="vnd.android.cursor.item/text_note" />
+81-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:17-78
+81-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:23-75
+82                <data android:mimeType="vnd.android.cursor.item/call_note" />
+82-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:17-78
+82-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:68:23-75
+83            </intent-filter>
+84            <intent-filter>
+84-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:79:13-82:29
+85
+86                <!-- <action android:name="android.intent.action.SEARCH" /> -->
+87                <category android:name="android.intent.category.DEFAULT" />
+87-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:17-76
+87-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:67:27-73
+88            </intent-filter>
+89
+90            <meta-data
+90-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:54:13-55:53
+91                android:name="android.app.searchable"
+91-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:54:24-61
+92                android:resource="@xml/searchable" />
+92-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:55:17-51
+93        </activity>
+94
+95        <provider
+95-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:89:9-92:43
+96            android:name="net.micode.notes.data.NotesProvider"
+96-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:90:13-63
+97            android:authorities="micode_notes"
+97-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:91:13-47
+98            android:multiprocess="true" />
+98-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:92:13-40
+99
+100        <receiver
+100-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:94:9-106:20
+101            android:name="net.micode.notes.widget.NoteWidgetProvider_2x"
+101-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:95:13-57
+102            android:label="@string/app_widget2x2" >
+102-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:96:13-50
+103            <intent-filter>
+103-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:97:13-101:29
+104                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+104-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:98:17-84
+104-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:98:25-81
+105                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+105-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:99:17-85
+105-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:99:25-82
+106                <action android:name="android.intent.action.PRIVACY_MODE_CHANGED" />
+106-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:100:17-85
+106-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:100:25-82
+107            </intent-filter>
+108
+109            <meta-data
+109-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:103:13-105:58
+110                android:name="android.appwidget.provider"
+110-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:104:17-58
+111                android:resource="@xml/widget_2x_info" />
+111-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:105:17-55
+112        </receiver>
+113        <receiver
+113-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:107:9-120:20
+114            android:name="net.micode.notes.widget.NoteWidgetProvider_4x"
+114-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:108:13-57
+115            android:label="@string/app_widget4x4" >
+115-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:109:13-50
+116            <intent-filter>
+116-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:97:13-101:29
+117                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+117-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:98:17-84
+117-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:98:25-81
+118                <action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+118-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:99:17-85
+118-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:99:25-82
+119                <action android:name="android.intent.action.PRIVACY_MODE_CHANGED" />
+119-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:100:17-85
+119-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:100:25-82
+120            </intent-filter>
+121
+122            <meta-data
+122-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:103:13-105:58
+123                android:name="android.appwidget.provider"
+123-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:104:17-58
+124                android:resource="@xml/widget_4x_info" />
+124-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:105:17-55
+125        </receiver>
+126        <receiver android:name="net.micode.notes.ui.AlarmInitReceiver" >
+126-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:122:9-126:20
+126-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:122:19-55
+127            <intent-filter>
+127-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:123:13-125:29
+128                <action android:name="android.intent.action.BOOT_COMPLETED" />
+128-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:124:17-79
+128-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:124:25-76
+129            </intent-filter>
+130        </receiver>
+131        <receiver
+131-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:128:9-131:20
+132            android:name="net.micode.notes.ui.AlarmReceiver"
+132-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:129:13-61
+133            android:process=":remote" >
+133-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:130:13-38
+134        </receiver>
+135
+136        <activity
+136-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:133:9-138:20
+137            android:name="net.micode.notes.ui.AlarmAlertActivity"
+137-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:134:13-50
+138            android:label="@string/app_name"
+138-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:135:13-45
+139            android:launchMode="singleInstance"
+139-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:136:13-48
+140            android:theme="@android:style/Theme.Holo.Wallpaper.NoTitleBar" >
+140-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:137:13-75
+141        </activity>
+142        <activity
+142-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:140:9-145:20
+143            android:name="net.micode.notes.ui.NotesPreferenceActivity"
+143-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:141:13-71
+144            android:label="@string/preferences_title"
+144-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:142:13-54
+145            android:launchMode="singleTop"
+145-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:143:13-43
+146            android:theme="@android:style/Theme.Holo.Light" >
+146-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:144:13-60
+147        </activity>
+148
+149        <service
+149-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:147:9-150:19
+150            android:name="net.micode.notes.gtask.remote.GTaskSyncService"
+150-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:148:13-74
+151            android:exported="false" >
+151-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:149:13-37
+152        </service>
+153
+154        <meta-data
+154-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:152:9-154:52
+155            android:name="android.app.default_searchable"
+155-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:153:13-58
+156            android:value=".ui.NoteEditActivity" />
+156-->C:\Users\riven\Downloads\Notes\app\src\main\AndroidManifest.xml:154:13-49
+157    </application>
+158
+159</manifest>
