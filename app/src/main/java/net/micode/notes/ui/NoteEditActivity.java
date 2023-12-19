@@ -16,6 +16,7 @@
 
 package net.micode.notes.ui;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -30,6 +31,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,7 +46,9 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.Spannable;
@@ -87,7 +91,10 @@ import net.micode.notes.ui.NoteEditText.OnTextViewChangeListener;
 import net.micode.notes.widget.NoteWidgetProvider_2x;
 import net.micode.notes.widget.NoteWidgetProvider_4x;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -182,6 +189,15 @@ public class NoteEditActivity extends Activity implements OnClickListener,
 
     private final int PHOTO_REQUEST = 1;//请求码
 
+    private static final int REQUEST_EXTERNAL_STORAGE = 1;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+
+
+    //指示这个便签是否包含图片，决定了在saveNote的时候的不同逻辑
+    private boolean contain_picture = false;
+
     private static final byte[] SALT = new byte[] {
             // 你的 SALT 字节数组，可以是任意的字节，比如:
             (byte)0xa2, (byte)0x17, (byte)0xb8, (byte)0x4f,
@@ -217,6 +233,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
             @Override
             public void onClick(View view) {
                 Log.d(TAG, "onClick: click add image button");
+                System.out.println("点击了插入图片按钮");
                 //ACTION_GET_CONTENT: 允许用户选择特殊种类的数据，并返回（特殊种类的数据：照一张相片或录一段音）
                 Intent loadImage = new Intent(Intent.ACTION_GET_CONTENT);
                 //Category属性用于指定当前动作（Action）被执行的环境.
@@ -340,13 +357,16 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     protected void onResume() {//能获得用户焦点：可以操作
         super.onResume();
         initNoteScreen();
+        System.out.println("调用verifyStoragePermissions(this);");
+
+        System.out.println("接下来调用convertToImage");
         convertToImage(); // 每次活动恢复时重新将文本中的图片路径转换为图像
         //TODO 这里把第二次注解掉了试试
         //initNoteScreen();//初始化便签屏幕
     }
 
     private void initNoteScreen() {
-
+        System.out.println("这里进入了initNoteScreen方法");
         boolean isEncrypted = checkNoteEncrypted(mWorkingNote.getNoteId());
 
 
@@ -375,7 +395,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
 
             showAlertHeader();
             //将有图片路径的位置转换为图片
-            convertToImage();
+            //convertToImage();
         }
 
 
@@ -400,44 +420,41 @@ public class NoteEditActivity extends Activity implements OnClickListener,
 
     //路径字符串格式 转换为 图片image格式
     private void convertToImage() {
-        NoteEditText noteEditText = (NoteEditText) findViewById(R.id.note_edit_view); //获取当前的edit
-        Editable editable = noteEditText.getText();//1.获取text
-        String noteText = editable.toString(); //2.将note内容转换为字符串
-        int length = editable.length(); //内容的长度
-        //3.截取img片段 [local]+uri+[local]，提取uri
-        for(int i = 0; i < length; i++) {
-            for(int j = i; j < length; j++) {
-                String img_fragment = noteText.substring(i, j+1); //img_fragment：关于图片路径的片段
-                if(img_fragment.length() > 15 && img_fragment.endsWith("[/local]") && img_fragment.startsWith("[local]")){
-                    int limit = 7;  //[local]为7个字符
-                    //[local][/local]共15个字符，剩下的为真正的path长度
-                    int len = img_fragment.length()-15;
-                    //从[local]之后的len个字符就是path
-                    String path = img_fragment.substring(limit,limit+len);//获取到了图片路径
-                    Bitmap bitmap = null;
-                    Log.d(TAG, "图片的路径是："+path);
-                    try {
-                        bitmap = BitmapFactory.decodeFile(path);//将图片路径解码为图片格式
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if(bitmap!=null){  //若图片存在
-                        Log.d(TAG, "图片不为null");
-                        ImageSpan imageSpan = new ImageSpan(NoteEditActivity.this, bitmap);
-                        //4.创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
-                        String ss = "[local]" + path + "[/local]";
-                        SpannableString spannableString = new SpannableString(ss);
-                        //5.将指定的标记对象附加到文本的开始...结束范围
-                        spannableString.setSpan(imageSpan, 0, ss.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        Log.d(TAG, "Create spannable string success!");
-                        Editable edit_text = noteEditText.getEditableText();
-                        edit_text.delete(i,i+len+15); //6.删掉图片路径的文字
-                        edit_text.insert(i, spannableString); //7.在路径的起始位置插入图片
-                    }
-                }
+        NoteEditText noteEditText = (NoteEditText) findViewById(R.id.note_edit_view);
+        //读取出编辑页面的文本
+        Editable editable = noteEditText.getText();
+        //匹配出标记图片的路径
+        Pattern pattern = Pattern.compile("\\[local\\](.*?)\\[/local\\]");
+        Matcher matcher = pattern.matcher(editable);
+
+        //加载出每个路径对应的图片
+        while (matcher.find()) {
+
+            String uriString = matcher.group(1);
+            Uri imageUri = Uri.parse(uriString);
+            try {
+                //加载图片的同时标记这个便签是包含图片的，方便后续处理
+                contain_picture = true;
+                Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(imageUri));
+                //将标记的字符串替换为图片显示出来
+                replaceTextWithImage(editable, matcher.start(), matcher.end(), bitmap);
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "convertToImage: File not found for URI", e);
             }
         }
     }
+
+    private void replaceTextWithImage(Editable editable, int start, int end, Bitmap bitmap) {
+        ImageSpan imageSpan = new ImageSpan(NoteEditActivity.this, bitmap);
+        SpannableString spannableString = new SpannableString(" ");
+        spannableString.setSpan(imageSpan, 0, 1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        editable.replace(start, end, spannableString);
+
+
+
+    }
+
+
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -454,6 +471,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
          * is no id which is equivalent to create new note
          */
         if (!mWorkingNote.existInDatabase()) {
+            System.out.println("在onSaveInstanceState中调用saveNote()");
             saveNote();
         }
         outState.putLong(Intent.EXTRA_UID, mWorkingNote.getNoteId());
@@ -527,6 +545,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     @Override
     protected void onPause() {
         super.onPause();
+        System.out.println("在onPause中调用saveNote()");
         if(saveNote()) {
             Log.d(TAG, "Note data was saved with length:" + mWorkingNote.getContent().length());
         }
@@ -584,7 +603,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         if(clearSettingState()) {
             return;
         }
-
+        System.out.println("在onBackPressed中调用saveNote()");
         saveNote();
         super.onBackPressed();
     }
@@ -919,8 +938,16 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     }
 
     private boolean saveNote() {
-        getWorkingText();
-        String noteContent = mNoteEditor.getText().toString();
+        System.out.println("saveNote方法之前的workingNote的text："+mWorkingNote.getContent());
+        String noteContent = null;
+        if(contain_picture){
+            noteContent = mWorkingNote.getContent();
+        }else {
+            getWorkingText();
+            noteContent = mNoteEditor.getText().toString();
+        }
+
+        System.out.println("在saveNote方法中 noteContent 是"+noteContent);
 
         // 如果当前有密码，把mWorkingNote的content值拿出来再使用该密码重新加密
         if (currentPassword != null && !noteContent.isEmpty()) {
@@ -1006,55 +1033,34 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         Toast.makeText(this, resId, duration).show();
     }
 
+    @SuppressLint("WrongConstant")
     @Override
-    //重写onActivityResult()来处理返回的数据
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
         ContentResolver resolver = getContentResolver();
         switch (requestCode) {
             case PHOTO_REQUEST:
-                Uri originalUri = intent.getData(); //1.获得图片的真实路径
-                Bitmap bitmap = null;
-                try {
-                    bitmap = BitmapFactory.decodeStream(resolver.openInputStream(originalUri));//2.解码图片
-                } catch (FileNotFoundException e) {
-                    Log.d(TAG, "onActivityResult: get file_exception");
-                    e.printStackTrace();
+                Uri imageUri = intent.getData(); // 获取图片URI
+
+
+                final int takeFlags = intent.getFlags()
+                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
                 }
 
-                if(bitmap != null){
-                    int maxWidth = mNoteEditor.getWidth(); // 获取EditText的宽度
-                    bitmap = scaleImageToFitWidth(bitmap, maxWidth); // 缩放图片
-                    //3.根据Bitmap对象创建ImageSpan对象
-                    Log.d(TAG, "onActivityResult: bitmap is not null");
-                    ImageSpan imageSpan = new ImageSpan(NoteEditActivity.this, bitmap);
-                    String path = getPath(this,originalUri);
-                    //4.使用[local][/local]将path括起来，用于之后方便识别图片路径在note中的位置
-                    String img_fragment= "[local]" + path + "[/local]";
-                    //创建一个SpannableString对象，以便插入用ImageSpan对象封装的图像
-                    SpannableString spannableString = new SpannableString(img_fragment);
-                    spannableString.setSpan(imageSpan, 0, img_fragment.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    //5.将选择的图片追加到EditText中光标所在位置
-                    NoteEditText e = (NoteEditText) findViewById(R.id.note_edit_view);
-                    int index = e.getSelectionStart(); //获取光标所在位置
-                    Log.d(TAG, "Index是: " + index);
-                    Editable edit_text = e.getEditableText();
-                    edit_text.insert(index, spannableString); //将图片插入到光标所在位置
 
-                    //这里使用setWorkingText方法不仅会更改WorkingText的值还会更改其中的另一个Note的
-                    mWorkingNote.setWorkingText(e.getText().toString());
-                    //mWorkingNote.mContent = e.getText().toString();
-                    //6.把改动提交到数据库中,两个数据库表都要改的
-                    ContentResolver contentResolver = getContentResolver();
-                    ContentValues contentValues = new ContentValues();
-                    final long id = mWorkingNote.getNoteId();
-                    contentValues.put("snippet",mWorkingNote.mContent);
-                    contentResolver.update(Uri.parse("content://micode_notes/note"), contentValues,"_id=?",new String[]{""+id});
-                    ContentValues contentValues1 = new ContentValues();
-                    contentValues1.put("content",mWorkingNote.mContent);
-                    contentResolver.update(Uri.parse("content://micode_notes/data"), contentValues1,"mime_type=? and note_id=?", new String[]{"vnd.android.cursor.item/text_note",""+id});
-
-                }else{
+                if(imageUri != null){
+                    try {
+                        Bitmap bitmap = BitmapFactory.decodeStream(resolver.openInputStream(imageUri));
+                        insertImageIntoEditText(bitmap, imageUri.toString());
+                        contain_picture = true;
+                    } catch (FileNotFoundException e) {
+                        Log.d(TAG, "onActivityResult: get file_exception", e);
+                    }
+                } else {
                     Toast.makeText(NoteEditActivity.this, "获取图片失败", Toast.LENGTH_SHORT).show();
                 }
                 break;
@@ -1063,115 +1069,25 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         }
     }
 
+    private void insertImageIntoEditText(Bitmap bitmap, String uriString) {
+        ImageSpan imageSpan = new ImageSpan(NoteEditActivity.this, bitmap);
+        String imgFragment = "[local]" + uriString + "[/local]";
+        SpannableString spannableString = new SpannableString(imgFragment);
+        spannableString.setSpan(imageSpan, 0, imgFragment.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        NoteEditText editText = (NoteEditText) findViewById(R.id.note_edit_view);
+        int index = editText.getSelectionStart();
+        Editable editableText = editText.getEditableText();
+        editableText.insert(index, spannableString);
+        System.out.println("233333333333");
+        System.out.println(editText.getText().toString());
 
-    //获取文件的real path
-    public String getPath(final Context context, final Uri uri) {
+        System.out.println("editText.getText().toString()是"+editText.getText().toString());
+        System.out.println("mNoteEditor.getText().toString()是"+mNoteEditor.getText().toString());
+        mWorkingNote.setWorkingText(editText.getText().toString());
+        // 更新数据库逻辑
 
-        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
-
-        // DocumentProvider
-        if (isKitKat && DocumentsContract.isDocumentUri(context, uri)) {
-            // ExternalStorageProvider
-//            if (isExternalStorageDocument(uri)) {
-//                final String docId = DocumentsContract.getDocumentId(uri);
-//                final String[] split = docId.split(":");
-//                final String type = split[0];
-//
-//                if ("primary".equalsIgnoreCase(type)) {
-//                    return Environment.getExternalStorageDirectory() + "/" + split[1];
-//                }
-//            }
-//            // DownloadsProvider
-//            else if (isDownloadsDocument(uri)) {
-//                final String id = DocumentsContract.getDocumentId(uri);
-//                final Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
-//                return getDataColumn(context, contentUri, null, null);
-//            }
-            // MediaProvider
-//            else
-            if (isMediaDocument(uri)) {
-                final String docId = DocumentsContract.getDocumentId(uri);
-                final String[] split = docId.split(":");
-                final String type = split[0];
-
-                Uri contentUri = null;
-                if ("image".equals(type)) {
-                    contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
-                }
-
-                final String selection = "_id=?";
-                final String[] selectionArgs = new String[]{split[1]};
-
-                return getDataColumn(context, contentUri, selection, selectionArgs);
-            }
-        }
-        // Media
-        else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            return getDataColumn(context, uri, null, null);
-        }
-        // File
-        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-            return uri.getPath();
-        }
-        return null;
     }
 
-
-    //获取数据列_获取此 Uri 的数据列的值。这对MediaStore Uris 和其他基于文件的 ContentProvider。
-    public String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
-
-        Cursor cursor = null;
-        final String column = "_data";
-        final String[] projection = {column};
-
-        try {
-            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
-            if (cursor != null && cursor.moveToFirst()) {
-                final int column_index = cursor.getColumnIndexOrThrow(column);
-                return cursor.getString(column_index);
-            }
-        } finally {
-            if (cursor != null)
-                cursor.close();
-        }
-        return null;
-    }
-
-
-    //是否为外部存储文件
-//    public boolean isExternalStorageDocument(Uri uri) {
-//        return "com.android.externalstorage.documents".equals(uri.getAuthority());
-//    }
-//
-//    //是否为下载文件
-//    public boolean isDownloadsDocument(Uri uri) {
-//        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
-//    }
-
-    //是否为媒体文件
-    public boolean isMediaDocument(Uri uri) {
-        return "com.android.providers.media.documents".equals(uri.getAuthority());
-    }
-
-    // 缩放图片以适应宽度
-   /* private Bitmap scaleImageToFitWidth(Bitmap bitmap, int width) {
-        float factor = width / (float) bitmap.getWidth();
-        return Bitmap.createScaledBitmap(bitmap, width, (int) (bitmap.getHeight() * factor), true);
-    }
-*/
-    private Bitmap scaleImageToFitWidth(Bitmap originalImage, int targetWidth) {
-        if (originalImage == null || targetWidth <= 0) {
-            return originalImage;
-        }
-        int width = originalImage.getWidth();
-        int height = originalImage.getHeight();
-        if (width > targetWidth) {
-            float scaleRatio = (float) targetWidth / width;
-            int newHeight = (int) (height * scaleRatio);
-            return Bitmap.createScaledBitmap(originalImage, targetWidth, newHeight, true);
-        }
-        return originalImage;
-    }
 
     public void onEncryptClick(View view) {
 
@@ -1209,33 +1125,30 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         builder.show();
     }
 
-
-
-
-
     //这里只修改了mWorkingNote中对应的值，在调用save相关方法时会同步到数据库
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void encryptNoteContent(String password) {
         try {
             String noteContent = mNoteEditor.getText().toString();
-            System.out.println("待加密的内容为：" + noteContent);
 
             if (noteContent == null || noteContent.isEmpty()) {
                 Toast.makeText(this, "便签内容为空，无法加密", Toast.LENGTH_SHORT).show();
                 return;
             }
-
+            //生成密钥
             byte[] key = generateKey(password);
+            //生成密文
             byte[] encryptedContent = EncryptionHelper.encrypt(key, INIT_VECTOR, noteContent.getBytes());
+            //将密文转为base64编码，以方便作为字符串格式存在数据库中
             String encryptedContentBase64 = Base64.encodeToString(encryptedContent, Base64.DEFAULT);
-            System.out.println("加密后的内容（Base64）：" + encryptedContentBase64);
 
             mWorkingNote.setWorkingText(encryptedContentBase64);
+            //计算密码的哈希值
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(password.getBytes(StandardCharsets.UTF_8));
             String passwordHash = Base64.encodeToString(hash, Base64.DEFAULT);
-            System.out.println("加密密码 的哈希"+passwordHash);
             mWorkingNote.setEncryption(true, passwordHash);
+            //记录当前的密码，方便修改便签并退出后重新进行加密
             currentPassword = password;
 
         } catch (Exception e) {
@@ -1245,32 +1158,12 @@ public class NoteEditActivity extends Activity implements OnClickListener,
     }
 
 
-
-
-
-
-
-
-
     private byte[] generateKey(String password) throws NoSuchAlgorithmException, InvalidKeySpecException {
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
         PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), SALT, 65536, 256);
         SecretKey tmp = factory.generateSecret(spec);
         return tmp.getEncoded();
     }
-
-
-
-
-
-    /*private void saveEncryptedNoteToDatabase(long noteId, String encryptedContentBase64) {
-        ContentValues values = new ContentValues();
-        values.put(Notes.NoteColumns.SNIPPET, encryptedContentBase64); // 加密内容作为片段保存
-        values.put(Notes.NoteColumns.IS_ENCRYPTED, 1); // 新增加密状态更新
-        Uri noteUri = ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, noteId);
-        getContentResolver().update(noteUri, values, null, null);
-        Toast.makeText(this, "便签已加密", Toast.LENGTH_SHORT).show();
-    }*/
 
 
 
@@ -1292,23 +1185,6 @@ public class NoteEditActivity extends Activity implements OnClickListener,
             Toast.makeText(this, "解密失败", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
-
-
-
-   /* private String getEncryptedNoteFromDatabase(long noteId) {
-        Uri noteUri = ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, noteId);
-        Cursor cursor = getContentResolver().query(noteUri, new String[]{Notes.NoteColumns.SNIPPET}, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") String encryptedContent = cursor.getString(cursor.getColumnIndex(Notes.NoteColumns.SNIPPET));
-            cursor.close();
-            return encryptedContent;
-        }
-        return null;
-    }*/
-
 
     private void promptForDecryption() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -1369,16 +1245,7 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         }
     }
 
-    /*private String getPasswordHashFromDatabase(long noteId) {
-        Uri noteUri = ContentUris.withAppendedId(Notes.CONTENT_NOTE_URI, noteId);
-        Cursor cursor = getContentResolver().query(noteUri, new String[]{"password_hash"}, null, null, null);
-        if (cursor != null && cursor.moveToFirst()) {
-            @SuppressLint("Range") String passwordHash = cursor.getString(cursor.getColumnIndex("password_hash"));
-            cursor.close();
-            return passwordHash;
-        }
-        return null;
-    }*/
+
     private boolean checkNoteEncrypted(long noteId) {
         Cursor cursor = null;
         Intent intent = getIntent();
@@ -1432,8 +1299,6 @@ public class NoteEditActivity extends Activity implements OnClickListener,
         //将有图片路径的位置转换为图片
         convertToImage();
     }
-
-
 
 
 }
